@@ -33,3 +33,8 @@ auxiliar motoristas no controle de suas finanças.
 ## Autor
 
 Desenvolvido como projeto acadêmico.
+
+## Licença
+
+Este projeto está licenciado sob a licença MIT.
+Consulte o arquivo [LICENSE](LICENSE) para mais informações.
