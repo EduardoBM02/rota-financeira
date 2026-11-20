@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#168653" />
+  <link rel="manifest" href="manifest.json">
+  <title>Rota Financeira | Controle do motorista</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <main id="authView" class="auth-shell">
+    <section class="auth-card">
+      <div class="brand-mark">RF</div>
+      <p class="eyebrow">CONTROLE FINANCEIRO DO MOTORISTA</p>
+      <h1 id="authTitle">Bem-vindo de volta</h1>
+      <p class="muted" id="authSubtitle">Entre para acompanhar seus ganhos e despesas.</p>
+      <form id="authForm">
+        <label>Seu nome <input id="authName" autocomplete="name" placeholder="Como podemos te chamar?" /></label>
+        <label>E-mail <input id="authEmail" type="email" required autocomplete="username" placeholder="voce@email.com" /></label>
+        <label>Senha <input id="authPassword" type="password" required minlength="6" autocomplete="current-password" placeholder="Mínimo de 6 caracteres"/></label>
+        <button class="btn primary full" id="authSubmit" type="submit">Entrar</button>
+      </form>
+      <p class="auth-switch" id="authSwitch">Ainda não tem conta? <button class="link-btn" id="toggleAuth" type="button">Criar cadastro</button></p>
+      <p class="tiny muted">Seus dados são armazenados com segurança na nuvem.</p>
+      <p id="authError" class="error" role="alert"></p>
+    </section>
+  </main>
+
+  <div id="appView" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark small">RF</div>
+        <div>
+          <strong>Rota Financeira</strong>
+          <small>Gestão simplificada</small>
+        </div>
+      </div>
+      <nav>
+        <button class="nav-item active" data-page="dashboard"><span>▦</span> Visão geral</button>
+        <button class="nav-item" data-page="transactions"><span>⇄</span> Movimentações</button>
+        <button class="nav-item" data-page="goals"><span>◎</span> Metas financeiras</button>
+        <button class="nav-item" data-page="reports"><span>▤</span> Relatórios</button>
+      </nav>
+      <div class="sidebar-bottom"><div class="user-chip"><div class="avatar" id="userAvatar">M</div><div class="user-info"><strong id="userName">Motorista</strong><small id="userEmail"></small></div></div><button class="logout" id="logoutBtn">↪ Sair da conta</button></div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar"><div><p class="eyebrow">SEU PAINEL FINANCEIRO</p><h1 id="pageTitle">Visão geral</h1></div><div class="top-actions"><span class="today" id="todayLabel"></span><button class="btn primary" id="quickAdd">＋ Nova movimentação</button></div></header>
+      <section class="page active" id="page-dashboard">
+        <div class="welcome-row">
+          <div>
+            <h2 id="welcomeText">Olá!</h2>
+            <p class="muted">Veja como está o resultado do seu trabalho.</p>
+          </div>
+          <div class="period-control">
+            <label for="dashboardPeriod">Período</label>
+            <select id="dashboardPeriod">
+              <option value="day">Hoje</option>
+              <option value="week">Esta semana</option>
+              <option value="month" selected>Este mês</option>
+              <option value="all">Todo o período</option>
+            </select>
+          </div>
+        </div>
+        <div class="stat-grid">
+          <article class="stat-card">
+            <div class="stat-head">
+              <span>Ganhos</span>
+              <span class="stat-icon green">↗</span>
+            </div>
+            <strong id="incomeTotal">R$ 0,00</strong>
+            <small>Receitas registradas</small>
+          </article>
+          <article class="stat-card">
+            <div class="stat-head">
+              <span>Despesas</span>
+              <span class="stat-icon orange">↘</span>
+            </div>
+            <strong id="expenseTotal">R$ 0,00</strong>
+            <small>Custos da atividade</small>
+          </article>
+          <article class="stat-card highlight">
+            <div class="stat-head">
+              <span>Resultado líquido</span>
+              <span class="stat-icon white">＝</span>
+            </div>
+            <strong id="netTotal">R$ 0,00</strong>
+            <small>Ganhos menos despesas registradas</small>
+          </article>
+          <article class="stat-card">
+            <div class="stat-head">
+              <span>Movimentações</span>
+              <span class="stat-icon blue">▤</span>
+            </div>
+            <strong id="countTotal">0</strong>
+            <small>Registros no período</small>
+          </article>
+        </div>
+        <div class="content-grid">
+          <article class="panel chart-panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Receitas x despesas</h3>
+                <p class="muted">Comparativo dos últimos 7 dias</p>
+              </div>
+              <span class="legend"><i class="dot income-dot"></i> Ganhos <i class="dot expense-dot"></i> Despesas</span>
+            </div>
+            <canvas id="overviewChart" height="230"></canvas>
+          </article>
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Resumo por categoria</h3>
+                <p class="muted">Onde estão seus custos</p>
+              </div>
+            </div>
+            <div id="categorySummary" class="category-list">
+              <p class="empty">Registre despesas para visualizar as categorias.</p>
+            </div>
+          </article>
+        </div>
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>Movimentações recentes</h3>
+              <p class="muted">Seus últimos registros</p>
+            </div>
+            <button class="text-btn" data-goto="transactions">Ver histórico →</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Descrição</th>
+                  <th>Categoria</th>
+                  <th>Data</th>
+                  <th>Tipo</th>
+                  <th class="right">Valor</th>
+                </tr>
+              </thead>
+              <tbody id="recentRows"></tbody>
+            </table>
+          </div>
+          <p class="empty hidden" id="recentEmpty">Nenhuma movimentação registrada ainda.</p>
+        </article>
+      </section>
+
+      <section class="page" id="page-transactions">
+        <div class="page-intro">
+          <div>
+            <h2>Movimentações</h2>
+            <p class="muted">Registre e acompanhe tudo o que entra e sai.</p>
+          </div>
+          <button class="btn primary" id="addTransaction">＋ Adicionar registro</button>
+        </div>
+        <article class="panel filters">
+          <label>Buscar<input id="searchTransactions" placeholder="Descrição ou categoria..." /></label>
+          <label>Tipo
+              <select id="typeFilter">
+              <option value="all">Todos</option>
+              <option value="income">Ganhos</option>
+              <option value="expense">Despesas</option>
+            </select>
+          </label>
+          <label>Período
+            <select id="transactionPeriod">
+              <option value="all">Todo o período</option>
+              <option value="day">Hoje</option>
+              <option value="week">Esta semana</option>
+              <option value="month">Este mês</option>
+            </select>
+          </label>
+          <label>Categoria
+            <select id="categoryFilter">
+              <option value="all">Todas</option>
+            </select>
+          </label>
+        </article>
+        <article class="panel">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Descrição</th>
+                  <th>Categoria</th>
+                  <th>Data</th>
+                  <th>Tipo</th>
+                  <th class="right">Valor</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="transactionRows"></tbody>
+            </table>
+          </div>
+          <p class="empty hidden" id="transactionEmpty">Nenhum registro encontrado.</p>
+        </article>
+      </section>
+
+      <section class="page" id="page-goals">
+        <div class="page-intro">
+          <div>
+            <h2>Metas financeiras</h2>
+            <p class="muted">Defina um objetivo e acompanhe seu progresso.</p>
+          </div>
+          <button class="btn primary" id="newGoal">＋ Nova meta</button>
+        </div>
+        <div id="goalsList" class="goal-grid"></div>
+        <article class="panel tip-panel">
+          <div class="tip-icon">✦</div>
+          <div>
+            <h3>Dica para sua organização</h3>
+            <p class="muted">Considere separar uma parte do resultado líquido para manutenção, documentação e imprevistos. Assim, esses custos não aparecem de surpresa.</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="page" id="page-reports">
+        <div class="page-intro">
+          <div>
+            <h2>Relatórios financeiros</h2>
+            <p class="muted">Consulte os resultados e exporte seus registros.</p>
+          </div>
+          <button class="btn secondary" id="exportCsv">↓ Exportar CSV</button>
+        </div>
+        <article class="panel report-filters">
+          <label>Período do relatório
+            <select id="reportPeriod">
+              <option value="month">Este mês</option>
+              <option value="day">Hoje</option>
+              <option value="week">Esta semana</option>
+              <option value="all">Todo o período</option>
+            </select>
+          </label>
+          <div class="report-total">
+            <span>Resultado do período</span>
+            <strong id="reportNet">R$ 0,00</strong>
+          </div>
+        </article>
+        <div class="stat-grid report-stats">
+          <article class="stat-card">
+            <span class="muted">Total de ganhos</span>
+            <strong id="reportIncome">R$ 0,00</strong>
+          </article>
+          <article class="stat-card">
+            <span class="muted">Total de despesas</span>
+            <strong id="reportExpense">R$ 0,00</strong>
+          </article>
+          <article class="stat-card">
+            <span class="muted">Quantidade de registros</span>
+            <strong id="reportCount">0</strong>
+          </article>
+        </div>
+        <div class="content-grid">
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Despesas por categoria</h3>
+                <p class="muted">Distribuição no período selecionado</p>
+              </div>
+            </div>
+            <canvas id="reportChart" height="240"></canvas>
+          </article>
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <h3>Detalhamento</h3>
+                <p class="muted">Totais agrupados por categoria</p>
+              </div>
+            </div>
+            <div id="reportCategories" class="category-list"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="transactionDialog" class="modal">
+    <form id="transactionForm" method="dialog">
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow">REGISTRO FINANCEIRO</p>
+          <h2 id="transactionModalTitle">Nova movimentação</h2>
+        </div>
+        <button type="button" class="icon-btn" data-close="transactionDialog">×</button>
+      </div>
+      <input type="hidden" id="transactionId" />
+      <div class="type-toggle">
+        <label><input type="radio" name="transactionType" value="income" checked /> <span>＋ Ganho</span></label>
+        <label><input type="radio" name="transactionType" value="expense" /> <span>− Despesa</span></label>
+      </div>
+      <label>Descrição<input id="description" required maxlength="70" placeholder="Ex.: Corridas da manhã" /></label>
+      <div class="form-row">
+        <label>Valor (R$)<input id="amount" type="number" min="0.01" step="0.01" required placeholder="0,00" /></label>
+        <label>Data<input id="transactionDate" type="date" required /></label>
+      </div>
+      <label>Categoria<select id="transactionCategory" required></select></label>
+      <label>Observações <textarea id="notes" rows="2" placeholder="Opcional"></textarea></label>
+      <div class="modal-actions">
+        <button type="button" class="btn secondary" data-close="transactionDialog">Cancelar</button>
+        <button class="btn primary" type="submit">Salvar registro</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="goalDialog" class="modal">
+    <form id="goalForm" method="dialog">
+      <div class="modal-head">
+        <div>
+          <p class="eyebrow">PLANEJAMENTO</p>
+          <h2>Nova meta financeira</h2>
+        </div>
+        <button type="button" class="icon-btn" data-close="goalDialog">×</button>
+      </div>
+      <label>Nome da meta<input id="goalName" required maxlength="55" placeholder="Ex.: Reserva para manutenção" /></label>
+      <div class="form-row">
+        <label>Valor desejado (R$)<input id="goalTarget" type="number" min="1" step="0.01" required /></label>
+        <label>Já economizado (R$)<input id="goalCurrent" type="number" min="0" step="0.01" value="0" required /></label>
+      </div>
+      <label>Prazo (opcional)<input id="goalDeadline" type="date" /></label>
+      <div class="modal-actions">
+        <button type="button" class="btn secondary" data-close="goalDialog">Cancelar</button>
+        <button class="btn primary" type="submit">Criar meta</button>
+      </div>
+    </form>
+  </dialog>
+  <div id="toast" class="toast" role="status"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script src="config.js"></script>
+
+  <script src="app.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./service-worker.js')
+        .then((registration) => {
+          console.log('Service Worker registrado:', registration.scope);
+        })
+        .catch((error) => {
+          console.error('Erro ao registrar Service Worker:', error);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
